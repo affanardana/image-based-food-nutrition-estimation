@@ -16,6 +16,11 @@ Rather than treating artificial intelligence as an all-knowing decision maker, I
 
 The project aims to demonstrate how modern computer vision can be integrated into a production-oriented software system using clean architecture and modular engineering principles.
 
+The system consists of:
+
+- Backend REST API
+- Web Frontend
+
 ---
 
 # 2. Problem Statement

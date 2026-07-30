@@ -663,6 +663,65 @@ Examples
 
 ---
 
+# Frontend and Backend Pipeline
+
+                  Browser
+
+                     │
+
+                     ▼
+
+         Frontend (React/Vite)
+
+                     │
+              REST API (HTTP)
+
+                     │
+
+                     ▼
+
+          Backend (FastAPI)
+
+                     │
+
+         Application Layer
+
+                     │
+
+             Domain Layer
+
+                     ▲
+
+             Infrastructure
+
+The frontend is responsible only for user interaction and visualization. All business logic, AI inference, and nutrition calculation reside in the backend.
+
+---
+
+# Frontend Architecture
+
+The frontend is intentionally separated from the backend.
+
+Responsibilities
+
+- image upload
+- displaying AI results
+- human correction UI
+- nutrition visualization
+
+The frontend must never contain:
+
+- nutrition calculation
+- business rules
+- AI inference
+- provider-specific logic
+
+All business logic resides in the backend.
+
+The frontend communicates exclusively through the REST API.
+
+---
+
 # Architectural Constraints
 
 The following constraints must always hold.

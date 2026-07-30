@@ -49,7 +49,7 @@ Production-ready MVP
 | Version | Status | Goal |
 |----------|--------|------|
 | v0.1 | 🚧 In Progress | Project foundation |
-| v0.2 | ⏳ Planned | Core Domain |
+| v0.2 | ⏳ Planned | Core Domain (Backend Domain + Backend API + Frontend MVP + Integration) |
 | v0.3 | ⏳ Planned | Vision Pipeline |
 | v0.4 | ⏳ Planned | Nutrition Pipeline |
 | v0.5 | ⏳ Planned | Human Correction |

@@ -416,6 +416,28 @@ Previous decisions are considered historical records.
 
 ---
 
+# Frontend and Backend decision
+
+Backend and frontend are independent applications.
+
+Backend owns:
+
+- business logic
+- AI inference
+- persistence
+
+Frontend owns:
+
+- user interaction
+- visualization
+- API communication
+
+Never move business logic into the frontend.
+
+Whenever possible, backend APIs should remain backward-compatible so that frontend changes are minimized.
+
+---
+
 # Coding Principles
 
 Prefer:

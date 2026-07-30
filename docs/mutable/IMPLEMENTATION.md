@@ -121,30 +121,50 @@ mypy
 Current target structure
 
 ```text
-app/
+backend/
+├──app/
+│   ├── domain/
+│   │
+│   ├── application/
+│   │
+│   ├── infrastructure/
+│   │
+│   ├── presentation/
+│   │
+│   └── shared/
+└── tests/
+    ├── domain/
+    ├── application/
+    ├── infrastructure/
+    └── presentation/
 
-├── domain/
-│
-├── application/
-│
-├── infrastructure/
-│
-├── presentation/
-│
-└── shared/
+frontend/
+├──src/
+└── public/
 
 docs/
-
 ├── immutable/
 └── mutable/
 
-tests/
-
-├── domain/
-├── application/
-├── infrastructure/
-└── presentation/
 ```
+
+---
+
+# Frontend and Backend Tools
+Backend
+↓
+
+FastAPI
+
+Frontend
+↓
+
+React
+
+Communication
+↓
+
+REST API
 
 ---
 

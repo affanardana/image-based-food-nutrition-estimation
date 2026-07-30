@@ -435,6 +435,12 @@ Incorrect
 
 ---
 
+# Primary Client
+
+Web Frontend
+
+---
+
 # Versioning
 
 The API follows URI versioning.
