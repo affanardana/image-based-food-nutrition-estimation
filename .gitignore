@@ -54,3 +54,7 @@ backend/storage/
 
 # Deployment tooling
 .vercel/
+
+# Local-only documents: kept in the working copy, never published
+AGENTS.md
+PORTFOLIO.md
