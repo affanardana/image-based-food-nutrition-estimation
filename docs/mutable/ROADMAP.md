@@ -53,7 +53,7 @@ Production-ready MVP
 | v0.3 | ⏳ Planned | Vision Pipeline |
 | v0.4 | ⏳ Planned | Nutrition Pipeline |
 | v0.5 | ⏳ Planned | Human Correction |
-| v0.6 | ⏳ Planned | Persistence |
+| v0.6 | ✅ Complete | Persistence |
 | v0.7 | ⏳ Planned | API Stabilization |
 | v0.8 | ⏳ Planned | Testing & Quality |
 | v0.9 | ⏳ Planned | Production Hardening |
@@ -132,20 +132,20 @@ Planned
 
 Objectives
 
-Introduce provider-independent computer vision.
+Introduce provider-independent segmentation.
 
 Deliverables
 
-- VisionProvider interface
-- MockVisionProvider
-- VisionPrediction model
-- Canonical mapper
-- AnalyzeMeal use case
+- VisionProvider interface (segment-based)
+- MockSegmentationProvider
+- Segment model
+- SegmentMeal use case
+- LabelSegments use case
 
 Stretch Goals
 
-- First real provider implementation
-- Segmentation support
+- SAM3 segmentation provider (optional extras)
+- YOLO depth estimation (optional extras)
 
 Exit Criteria
 
@@ -198,6 +198,8 @@ Introduce human-in-the-loop workflow.
 
 Deliverables
 
+- Segment labeling workflow
+- Segment grouping into one FoodItem
 - Food replacement
 - Food deletion
 - Food addition
@@ -216,7 +218,7 @@ Exit Criteria
 Status
 
 ```
-Planned
+Complete
 ```
 
 Objectives
@@ -225,10 +227,11 @@ Persist meal history.
 
 Deliverables
 
-- MealRepository implementation
+- MealRepository implementation — `SqlMealRepository` (Postgres/Supabase, SQLite in tests)
 - PostgreSQL support
 - SQLite development support
 - Image storage abstraction
+- Meal history: list, retrieve, edit labels, delete (with image and crop cleanup)
 
 Stretch Goals
 

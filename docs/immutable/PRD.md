@@ -222,7 +222,9 @@ The system shall generate segmentation masks for detected food objects whenever 
 
 ## FR-04 Food Recognition
 
-The system shall classify each detected food object into a VisionClass.
+The system MAY suggest a VisionClass for each segment when label suggestions are enabled.
+
+The user assigns the final label.
 
 ---
 
@@ -243,7 +245,11 @@ The estimation method is implementation-dependent.
 
 ## FR-06 Canonical Food Resolution
 
-The system shall convert VisionClass into CanonicalFood before nutrition lookup.
+The user assigns CanonicalFood to segments during labeling.
+
+When suggestions are enabled, the suggested VisionClass is pre-mapped for review.
+
+The user remains the final decision maker.
 
 This mapping is independent from AI implementation.
 
@@ -352,13 +358,13 @@ The expected user workflow is:
 Upload Meal Image
         │
         ▼
-Vision Analysis
+Vision Segmentation & Depth
         │
         ▼
-Meal Draft Generation
+Meal Draft with Crops
         │
         ▼
-User Review
+User Labels Crops
         │
         ▼
 Optional Corrections

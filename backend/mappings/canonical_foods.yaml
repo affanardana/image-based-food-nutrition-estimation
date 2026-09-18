@@ -1,0 +1,160 @@
+# Canonical Food Mapping Configuration
+# Maps vision model labels (VisionClass) to standardized business entities (CanonicalFood).
+#
+# Format:
+#   canonical_foods:
+#     <canonical_id>:
+#       name: <human-readable name>
+#       typical_weight_g: <typical serving weight in grams>
+#       physical_properties:
+#         density_g_per_cm3: <density (rho)>
+#         calibration_factor: <gamma — empirical height scale factor (Eq 4)>
+#       vision_labels:
+#         - <vision class label 1>
+#         - <vision class label 2>
+#
+# NOTE: calibration factors and densities are DUMMY values for development
+# and testing. They must be calibrated from real data before production use.
+
+canonical_foods:
+  sate:
+    name: "Sate"
+    typical_weight_g: 100.0
+    physical_properties:
+      density_g_per_cm3: 0.95
+      calibration_factor: 15.0
+    vision_labels:
+      - "sate"
+      - "satay"
+      - "chicken_satay"
+      - "beef_satay"
+
+  lontong:
+    name: "Lontong"
+    typical_weight_g: 100.0
+    physical_properties:
+      density_g_per_cm3: 0.85
+      calibration_factor: 25.0
+    vision_labels:
+      - "lontong"
+      - "rice_cake"
+
+  burger:
+    name: "Burger"
+    typical_weight_g: 200.0
+    physical_properties:
+      density_g_per_cm3: 0.95
+      calibration_factor: 18.0
+    vision_labels:
+      - "burger"
+      - "hamburger"
+      - "cheeseburger"
+      - "beef_burger"
+      - "chicken_burger"
+
+  pizza:
+    name: "Pizza"
+    typical_weight_g: 150.0
+    physical_properties:
+      density_g_per_cm3: 0.80
+      calibration_factor: 6.0
+    vision_labels:
+      - "pizza"
+      - "margherita"
+      - "pepperoni_pizza"
+
+  fried_rice:
+    name: "Nasi Goreng"
+    typical_weight_g: 300.0
+    physical_properties:
+      density_g_per_cm3: 0.90
+      calibration_factor: 8.0
+    vision_labels:
+      - "fried_rice"
+      - "nasi_goreng"
+      - "chinese_fried_rice"
+
+  sushi:
+    name: "Sushi"
+    typical_weight_g: 200.0
+    physical_properties:
+      density_g_per_cm3: 0.85
+      calibration_factor: 7.0
+    vision_labels:
+      - "sushi"
+      - "maki"
+      - "nigiri"
+
+  fried_chicken:
+    name: "Fried Chicken"
+    typical_weight_g: 180.0
+    physical_properties:
+      density_g_per_cm3: 0.70
+      calibration_factor: 12.0
+    vision_labels:
+      - "fried_chicken"
+      - "chicken_wing"
+      - "chicken_drumstick"
+      - "ayam_goreng"
+
+  salad:
+    name: "Salad"
+    typical_weight_g: 250.0
+    physical_properties:
+      density_g_per_cm3: 0.45
+      calibration_factor: 10.0
+    vision_labels:
+      - "salad"
+      - "mixed_salad"
+      - "green_salad"
+      - "caesar_salad"
+
+  rice:
+    name: "Rice"
+    typical_weight_g: 200.0
+    physical_properties:
+      density_g_per_cm3: 0.95
+      calibration_factor: 6.0
+    vision_labels:
+      - "rice"
+      - "steamed_rice"
+      - "white_rice"
+      - "nasi_putih"
+
+  noodles:
+    name: "Noodles"
+    typical_weight_g: 250.0
+    physical_properties:
+      density_g_per_cm3: 0.60
+      calibration_factor: 8.0
+    vision_labels:
+      - "noodles"
+      - "ramen"
+      - "mie"
+      - "pasta"
+      - "spaghetti"
+
+  soup:
+    name: "Soup"
+    typical_weight_g: 300.0
+    physical_properties:
+      density_g_per_cm3: 1.00
+      calibration_factor: 12.0
+    vision_labels:
+      - "soup"
+      - "chicken_soup"
+      - "vegetable_soup"
+      - "soto"
+      - "bakso"
+
+  bread:
+    name: "Bread"
+    typical_weight_g: 60.0
+    physical_properties:
+      density_g_per_cm3: 0.25
+      calibration_factor: 5.0
+    vision_labels:
+      - "bread"
+      - "toast"
+      - "sandwich"
+      - "roti"

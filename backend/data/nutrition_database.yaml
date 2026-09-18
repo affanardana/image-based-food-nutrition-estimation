@@ -1,0 +1,112 @@
+# Dummy Nutritional Database (per 100 g)
+#
+# Used by ManualNutritionProvider for development and testing.
+# Values are placeholders — replace with a real nutrition source
+# (Panganku, USDA, or a calibrated manual dataset) before production.
+#
+# Format:
+#   foods:
+#     <canonical_food_id>:
+#       calories_kcal: <kcal per 100 g>
+#       protein_g: <grams per 100 g>
+#       fat_g: <grams per 100 g>
+#       carbohydrates_g: <grams per 100 g>
+#       fiber_g: <grams per 100 g>
+#       sodium_mg: <milligrams per 100 g>
+
+foods:
+  sate:
+    calories_kcal: 218.0
+    protein_g: 24.5
+    fat_g: 11.2
+    carbohydrates_g: 4.8
+    fiber_g: 0.0
+    sodium_mg: 480.0
+
+  lontong:
+    calories_kcal: 130.0
+    protein_g: 2.2
+    fat_g: 0.4
+    carbohydrates_g: 28.5
+    fiber_g: 1.0
+    sodium_mg: 15.0
+
+  burger:
+    calories_kcal: 250.0
+    protein_g: 13.0
+    fat_g: 14.0
+    carbohydrates_g: 20.0
+    fiber_g: 1.5
+    sodium_mg: 500.0
+
+  pizza:
+    calories_kcal: 266.0
+    protein_g: 11.0
+    fat_g: 10.0
+    carbohydrates_g: 33.0
+    fiber_g: 2.3
+    sodium_mg: 600.0
+
+  fried_rice:
+    calories_kcal: 180.0
+    protein_g: 4.5
+    fat_g: 6.0
+    carbohydrates_g: 28.0
+    fiber_g: 1.2
+    sodium_mg: 380.0
+
+  sushi:
+    calories_kcal: 150.0
+    protein_g: 7.0
+    fat_g: 0.5
+    carbohydrates_g: 30.0
+    fiber_g: 0.6
+    sodium_mg: 350.0
+
+  fried_chicken:
+    calories_kcal: 250.0
+    protein_g: 19.0
+    fat_g: 16.0
+    carbohydrates_g: 6.0
+    fiber_g: 0.0
+    sodium_mg: 550.0
+
+  salad:
+    calories_kcal: 50.0
+    protein_g: 1.5
+    fat_g: 2.5
+    carbohydrates_g: 5.0
+    fiber_g: 2.0
+    sodium_mg: 120.0
+
+  rice:
+    calories_kcal: 130.0
+    protein_g: 2.7
+    fat_g: 0.3
+    carbohydrates_g: 28.0
+    fiber_g: 0.4
+    sodium_mg: 5.0
+
+  noodles:
+    calories_kcal: 140.0
+    protein_g: 4.5
+    fat_g: 2.0
+    carbohydrates_g: 25.0
+    fiber_g: 1.0
+    sodium_mg: 300.0
+
+  soup:
+    calories_kcal: 60.0
+    protein_g: 3.0
+    fat_g: 2.0
+    carbohydrates_g: 8.0
+    fiber_g: 1.0
+    sodium_mg: 400.0
+
+  bread:
+    calories_kcal: 265.0
+    protein_g: 9.0
+    fat_g: 3.2
+    carbohydrates_g: 49.0
+    fiber_g: 2.7
+    sodium_mg: 490.0

@@ -1,0 +1,38 @@
+# Keeps the free tiers from going to sleep.
+#
+# Supabase pauses a Free project after 7 days without database activity,
+# and a health check does not count: it has to be a real query. This
+# workflow hits the food search endpoint, which reads the canonical_foods
+# table, so it resets that timer. It also wakes the Render service.
+#
+# Runs every 3 days, comfortably inside the 7-day window in case a run is
+# delayed or skipped. Note that GitHub disables scheduled workflows after
+# 60 days without repository activity; the "Run workflow" button
+# (workflow_dispatch) runs it by hand.
+#
+# Setup: add a repository secret named IFNE_API_URL holding the backend
+# origin, e.g. https://ifne-api.onrender.com (no trailing slash).
+
+name: Keep-alive
+
+on:
+  schedule:
+    # 03:17 on the 1st, 4th, 7th ... — off the hour so it is not queued
+    # with the many jobs pinned to :00.
+    - cron: "17 3 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query the food catalog
+        run: |
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --max-time 180 \
+            "${{ secrets.IFNE_API_URL }}/api/v1/foods/search?q=rice&limit=1" \
+            > /dev/null
+          echo "Backend answered; Supabase activity timer reset."

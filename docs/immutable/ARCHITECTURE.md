@@ -211,16 +211,16 @@ Infrastructure implements interfaces defined by the Domain.
 Upload Image
       │
       ▼
-Vision Provider
+Vision Provider (segmentation + depth)
       │
       ▼
-Vision Result
+Segments
       │
       ▼
-Canonical Mapping
+User Labeling (human-in-the-loop)
       │
       ▼
-Measurement
+CanonicalFood + Measurement
       │
       ▼
 Nutrition Resolution
@@ -245,22 +245,27 @@ Final Meal
 
 # Vision Pipeline
 
-Computer vision should only answer one question:
+Computer vision performs two observation tasks:
 
-"What does the image contain?"
+1. Segmentation — split the image into food regions (crops).
+2. Depth estimation — produce a relative depth map used for portion estimation.
 
-The pipeline produces observations.
+Label suggestions are optional and never authoritative.
 
 ```
 Image
 
 ↓
 
-Vision Provider
+Vision Provider (segmentation + depth)
 
 ↓
 
-Vision Prediction
+Segments (crops + mask statistics)
+
+↓
+
+User Labels (human-in-the-loop)
 
 ↓
 
@@ -303,12 +308,10 @@ Computer vision and nutrition are intentionally separated.
 
 User interaction is part of the architecture.
 
+Labeling segments is the primary mapping step, not an exception.
+
 ```
-AI Prediction
-
-↓
-
-Meal Draft
+Segments (crops)
 
 ↓
 
@@ -316,7 +319,15 @@ User Review
 
 ↓
 
-Correction
+User Labels (assign CanonicalFood to segments)
+
+↓
+
+Food Items
+
+↓
+
+Optional Corrections (weight, ingredients, food change)
 
 ↓
 
@@ -354,11 +365,11 @@ Examples
 ```
 VisionProvider
 
-├── MockProvider
+├── MockSegmentationProvider
 
-├── YOLOProvider
+├── SAM3SegmentationProvider
 
-├── FlorenceProvider
+├── YOLODepthProvider
 
 └── Future Providers
 ```
@@ -561,9 +572,9 @@ The architecture intentionally supports replacement of the following components.
 
 ## Vision
 
-- Detection
-- Segmentation
-- Classification
+- Segmentation (SAM-style)
+- Depth estimation
+- Optional label suggestion
 - Foundation Models
 
 ---

@@ -1,0 +1,37 @@
+# Render blueprint for the I-FNE backend.
+#
+# Frontend: Vercel (see frontend/vercel.json)
+# Database + storage: Supabase
+# Vision inference: Modal
+#
+# The free Render plan has no persistent disk, which is why uploaded
+# images and crops live in Supabase Storage (STORAGE_PROVIDER=supabase).
+#
+# Secrets are marked `sync: false`: Render prompts for them in the
+# dashboard instead of storing them in this file.
+services:
+  - type: web
+    name: ifne-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --frozen
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: DATABASE_URL
+        sync: false
+      - key: VISION_REMOTE_URL
+        sync: false
+      - key: STORAGE_PROVIDER
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: ifne
+      - key: CORS_ORIGINS
+        sync: false

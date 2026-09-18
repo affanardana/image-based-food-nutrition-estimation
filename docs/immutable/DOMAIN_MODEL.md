@@ -80,9 +80,11 @@ Everything in the application belongs to a Meal.
 ```
 Meal
 │
+├── Segment[]
+│
 ├── FoodItem
 │      │
-│      ├── VisionPrediction
+│      ├── Segment[]
 │      ├── Measurement
 │      ├── Ingredient[]
 │      ├── NutritionProfile
@@ -135,9 +137,8 @@ Examples:
 ## Attributes
 
 - food_item_id
-- vision_prediction
 - canonical_food
-- segmentation
+- segments
 - measurement
 - ingredients
 - nutrition_profile
@@ -156,54 +157,59 @@ A FoodItem
 
 ---
 
-# Entity: VisionPrediction
+# Entity: Segment
 
-Represents raw computer vision output.
+Represents one segmented region of a meal image.
+
+A Segment is a raw vision observation: the cropped image region and its geometric statistics.
 
 This entity belongs to Infrastructure but is stored inside the domain for traceability.
 
 ## Attributes
 
-- vision_class
-- confidence
+- segment_id
+- crop_image_ref
+- mask_area_px
+- normalized_area
 - bounding_box
-- segmentation_mask
+- max_normalized_depth
+- suggestion
 - provider_name
 - provider_version
 
-## Examples
+## Suggestion
+
+A Segment MAY carry a suggested class when the vision provider runs with label suggestions enabled.
 
 ```
-burger
+suggestion
 
-confidence
+├── vision_class
 
-0.96
+└── confidence
 ```
 
-or
-
-```
-fried_rice
-
-confidence
-
-0.89
-```
+Suggestions are optional and never authoritative.
 
 ---
 
-## Important Rule
+## Important Rules
 
-VisionPrediction is NOT a nutrition category.
+A Segment is NOT a food identity.
 
 It is only an observation.
+
+A Segment retains its own crop image.
+
+Crop images are never merged into one image.
 
 ---
 
 # Entity: VisionClass
 
-Represents the class predicted by the AI model.
+Represents a suggested class produced by the AI model.
+
+VisionClass is used only for optional label suggestions.
 
 Examples
 
@@ -251,8 +257,16 @@ It is the language spoken by the application.
 
 # Vision Mapping
 
+The primary mapping from vision output to CanonicalFood is performed by the user during labeling.
+
+When label suggestions are enabled, the suggestion pre-maps VisionClass to CanonicalFood for the user to review.
+
 ```
-VisionClass
+VisionClass (suggestion only)
+
+↓
+
+User Review
 
 ↓
 
@@ -280,6 +294,8 @@ Burger
 ```
 
 Multiple VisionClasses may map into one CanonicalFood.
+
+The user remains the final decision maker.
 
 ---
 
@@ -473,11 +489,13 @@ FoodItem   NutritionSummary
 
 ▼              ▼
 
-VisionPrediction
+Segment       Measurement
 
-↓
+│
 
-VisionClass
+▼
+
+VisionClass (suggestion only)
 
 ↓
 
@@ -572,6 +590,28 @@ Nutrition is always calculated from the final corrected meal.
 
 ---
 
+## Rule 8
+
+User labels, not vision suggestions, determine CanonicalFood.
+
+---
+
+## Rule 9
+
+Segments assigned the same label by the user form one FoodItem.
+
+Crop images are never merged.
+
+Only the computation aggregates.
+
+---
+
+## Rule 10
+
+Nutrition for a FoodItem is computed from the aggregated measurements of all its segments.
+
+---
+
 # Aggregate Root
 
 The aggregate root is:
@@ -623,8 +663,9 @@ The following terminology should be used consistently throughout the repository.
 | Term | Meaning |
 |-------|---------|
 | Meal | One eating session |
-| FoodItem | One detected food object |
-| VisionClass | Raw AI prediction |
+| FoodItem | One labeled group of segments |
+| Segment | One cropped image region produced by vision |
+| VisionClass | Optional AI class suggestion |
 | CanonicalFood | Standardized business food entity |
 | Ingredient | Food composition |
 | Measurement | Estimated geometric properties |

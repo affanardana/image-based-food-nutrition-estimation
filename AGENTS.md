@@ -116,6 +116,121 @@ The system should NOT:
 
 ---
 
+# Execution Policy (WARNING. MUST REMEMBER)
+
+The repository owner is responsible for executing all commands in the local development environment.
+
+AI agents must **NOT** execute commands that modify the local environment or start local services unless explicitly instructed by the repository owner.
+
+This includes, but is not limited to:
+
+- `uv sync`
+- `uv add`
+- `pip install`
+- `npm install`
+- `npm run dev`
+- `npm run build`
+- `uv run`
+- `uvicorn`
+- `pytest`
+- `ruff`
+- `mypy`
+- `docker compose up`
+- `docker build`
+- `alembic upgrade`
+- database migrations
+
+Instead of executing commands, AI agents must provide the exact commands for the repository owner to run manually.
+
+Example
+
+Instead of executing:
+
+```bash
+uv run pytest tests/
+```
+
+Respond with:
+
+```text
+Please run:
+
+uv run pytest tests/
+
+Then share the complete output so I can verify the results and determine the next steps.
+```
+
+The repository owner will execute commands and provide logs, error messages, screenshots, or terminal output when verification is required.
+
+AI agents should use those outputs to:
+
+- verify implementation
+- diagnose issues
+- suggest fixes
+- determine the next development step
+
+AI agents must never assume a command succeeded unless the repository owner provides its output.
+
+The repository owner is responsible for:
+
+- installing dependencies
+- running tests
+- starting development servers
+- applying database migrations
+- managing local services
+- verifying runtime behavior
+
+---
+
+# Git Policy (WARNING. MUST REMEMBER)
+
+The repository owner has exclusive control over the Git history.
+
+AI agents must **NOT** perform Git operations that modify the repository state unless explicitly instructed.
+
+This includes, but is not limited to:
+
+- `git init`
+- `git add`
+- `git commit`
+- `git commit --amend`
+- `git reset`
+- `git restore`
+- `git rebase`
+- `git merge`
+- `git cherry-pick`
+- `git stash`
+- `git tag`
+- `git push`
+- `git pull`
+- `git fetch`
+- creating or deleting branches
+
+Instead, AI agents should describe the recommended Git commands for the repository owner to execute manually.
+
+Example
+
+Instead of committing changes, respond with:
+
+```text
+Suggested commit:
+
+git add .
+git commit -m "feat: implement mock vision provider"
+
+Please review the changes before committing.
+```
+
+The repository owner is responsible for:
+
+- reviewing code changes
+- managing branches
+- creating commits
+- resolving merge conflicts
+- pushing changes to remote repositories
+
+---
+
 # Architectural Principles
 
 ## AI is a Component
