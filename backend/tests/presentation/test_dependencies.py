@@ -73,6 +73,15 @@ class TestStartupRequirements:
         with pytest.raises(ValueError, match="VISION_REMOTE_URL"):
             build_dependencies(config)
 
+    def test_unparseable_database_url_is_reported(self) -> None:
+        """A placeholder or unencoded password fails here, not later."""
+        config = hosted_config(
+            database=DatabaseConfig(url="...", meal_repository="sql")
+        )
+
+        with pytest.raises(ValueError, match="not a connection string"):
+            build_dependencies(config)
+
     def test_missing_storage_settings_are_reported(self) -> None:
         config = hosted_config(storage=StorageConfig(provider="supabase"))
 
@@ -91,6 +100,50 @@ class TestStartupRequirements:
 
         assert dependencies.config.database.url == SUPABASE_URL
         assert dependencies.config.vision.remote_url == MODAL_URL
+
+
+class TestStaticImageMount:
+    """Only the local provider serves images from disk."""
+
+    @staticmethod
+    def _mounted_paths(dependencies) -> list[str]:
+        from app.presentation.api import create_app
+
+        return [
+            getattr(route, "path", "")
+            for route in create_app(dependencies).routes
+        ]
+
+    def test_local_storage_creates_the_directory_and_mounts_it(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        deps = build_dependencies(local_config(tmp_path))
+
+        paths = self._mounted_paths(deps)
+
+        assert "/api/v1/images" in paths
+        assert (tmp_path / "storage").is_dir()
+
+    def test_hosted_storage_touches_no_directory(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """A read-only container must not be asked to create a directory."""
+        storage_path = tmp_path / "storage"
+        config = hosted_config(
+            storage=StorageConfig(
+                provider="supabase",
+                base_path=str(storage_path),
+                supabase_url=STORAGE_URL,
+                supabase_service_key=STORAGE_KEY,
+            )
+        )
+
+        paths = self._mounted_paths(build_dependencies(config))
+
+        assert "/api/v1/images" not in paths
+        assert not storage_path.exists()
 
 
 class TestLocalProviders:

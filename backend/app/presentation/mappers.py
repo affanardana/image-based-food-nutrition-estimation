@@ -22,15 +22,19 @@ IMAGE_URL_PREFIX = "/api/v1/images"
 
 
 def stored_path_to_url(storage_base: str | None, stored_path: str) -> str:
-    """Convert a storage path into its public image URL.
+    """Convert a storage reference into something a browser can load.
 
-    Vision providers store crop references as filesystem paths; the
-    frontend needs URL-shaped references served by the static mount.
-    References that are already URL-shaped (e.g. the mock provider's
-    ``/api/v1/images/...``) and paths outside the storage base pass
-    through unchanged.
+    The local provider stores filesystem paths, which the static mount
+    serves under ``/api/v1/images``; the hosted provider returns absolute
+    URLs already. References that are absolute URLs, already URL-shaped
+    (e.g. the mock provider's ``/api/v1/images/...``), or outside the
+    storage base pass through unchanged.
     """
-    if not stored_path or stored_path.startswith("/") or storage_base is None:
+    if not stored_path or storage_base is None:
+        return stored_path
+    # Hosted references, and the mock provider's ready-made API URLs,
+    # are already usable by a browser.
+    if stored_path.startswith(("http://", "https://", "/api/")):
         return stored_path
     try:
         relative = Path(stored_path).resolve().relative_to(
@@ -48,7 +52,7 @@ def meal_to_data(meal: Meal, storage_base: str | None = None) -> MealData:
         state=meal.state.value,
         name=meal.name,
         image_url=(
-            f"{IMAGE_URL_PREFIX}/{Path(meal.image_path).name}"
+            stored_path_to_url(storage_base, meal.image_path)
             if meal.image_path
             else None
         ),
@@ -74,7 +78,7 @@ def history_entry_to_out(
         created_at=meal.created_at,
         updated_at=meal.updated_at,
         image_url=(
-            f"{IMAGE_URL_PREFIX}/{Path(meal.image_path).name}"
+            stored_path_to_url(storage_base, meal.image_path)
             if meal.image_path
             else None
         ),

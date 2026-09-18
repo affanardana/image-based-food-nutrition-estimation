@@ -165,7 +165,7 @@ Implemented (SQL-backed catalog + nutrition)
 | Piece | Host |
 |-------|------|
 | Frontend | Vercel (`frontend/vercel.json`) |
-| Backend | Render free tier (`render.yaml`) |
+| Backend | Modal web endpoint (`scripts/modal_api.py`) |
 | Database | Supabase Postgres |
 | Images and crops | Supabase Storage |
 | Vision inference | Modal |
@@ -180,19 +180,30 @@ Frontend:
   (`src/api.js`); without it they would resolve against the Vercel domain.
 - Add the deployed origin to the backend's `CORS_ORIGINS`.
 
-Backend (Render):
+Backend (Modal):
 
-- The blueprint installs uv, syncs the locked environment, and serves
-  with uvicorn on `$PORT`.
-- Free instances spin down after about 15 minutes idle, so the first
-  request afterwards waits for the container to boot — and a Modal cold
-  start can add to that. Slow, not broken.
-- No persistent disk is required: images and crops live in Supabase
-  Storage, and meals live in Supabase Postgres.
+- `scripts/modal_api.py` serves `create_app()` as a Modal web endpoint.
+  `uv run modal deploy scripts/modal_api.py` from the backend directory
+  prints the URL that becomes the frontend's `VITE_API_BASE_URL`.
+- Configuration comes from a Modal secret named `ifne-api` holding
+  `DATABASE_URL`, `VISION_REMOTE_URL`, `SUPABASE_URL`,
+  `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET`, `CORS_ORIGINS`. Secrets are
+  read when a container starts, so a changed secret needs a redeploy (or
+  a wait for the container to scale down).
+- Containers start on demand and stop after five idle minutes, which for
+  this API takes seconds — there are no models to load here.
+- Nothing is persisted on the host: meals are in Supabase Postgres,
+  images in Supabase Storage. The container writes nothing to its own
+  filesystem either, because the static image mount is registered only
+  for `STORAGE_PROVIDER=local`.
+- The image installs dependencies from `pyproject.toml`
+  (`pip_install_from_pyproject`), so they cannot drift from what is
+  tested. `modal` itself is a dev dependency: only deploying needs it.
 
 Why the backend is not on Vercel: its filesystem is read-only apart from
-an ephemeral `/tmp`, and the Hobby plan caps a function at 60 s — which a
-Modal cold start can exceed.
+an ephemeral `/tmp`, and the Hobby plan caps a function at 60 s, which a
+Modal cold start can exceed. Render and Hugging Face Spaces were ruled
+out by card-on-file and billing requirements respectively (ADR-019).
 
 Keeping the free tiers awake:
 
@@ -201,12 +212,9 @@ Keeping the free tiers awake:
   without database activity, and a health check does not count — the
   request must actually read a table, which that endpoint does. Set the
   repository secret `IFNE_API_URL` to the backend origin.
-- Do **not** add a Render keep-alive ping. A month is about 730 hours,
-  and a permanently warm service would exhaust the 750 free instance
-  hours and suspend the service until the next month.
 - The frontend shows a "waking up the demo server" notice when a request
   exceeds six seconds (`onSlowRequestsChange` in `api.js`), which is what
-  a Render or Modal cold start looks like from the browser.
+  a Modal cold start looks like from the browser.
 
 ---
 

@@ -47,7 +47,7 @@ def make_test_dependencies(
 ) -> tuple[Dependencies, FakeMealRepository, FakeStorageProvider]:
     """Assemble API dependencies with fakes and in-memory providers."""
     repo = FakeMealRepository()
-    storage = FakeStorageProvider()
+    storage = FakeStorageProvider(str(tmp_path / "storage"))
     catalog = FakeCatalog(
         foods=[SATE, LONTONG, BURGER],
         vision_mapping={"cheeseburger": "burger"},

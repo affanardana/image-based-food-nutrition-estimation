@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import cast
 
 from fastapi import Request
-from sqlalchemy import Engine
+from sqlalchemy import Engine, make_url
+from sqlalchemy.exc import ArgumentError
 
 from app.application.services.measurement_estimator import MeasurementEstimator
 from app.application.services.nutrition_resolver import NutritionResolver
@@ -145,6 +146,20 @@ def _uses_sql(config: Config) -> bool:
     )
 
 
+def _is_parseable_url(database_url: str) -> bool:
+    """True when SQLAlchemy can parse the configured database URL.
+
+    Catches the common deployment mistake of a placeholder or an
+    unencoded password, which would otherwise fail later with SQLAlchemy's
+    own "Could not parse SQLAlchemy URL" message.
+    """
+    try:
+        make_url(database_url)
+    except ArgumentError:
+        return False
+    return True
+
+
 def _validate_config(config: Config) -> None:
     """Fail fast when a selected provider has no configuration.
 
@@ -162,6 +177,13 @@ def _validate_config(config: Config) -> None:
             "DATABASE_URL — the Supabase Postgres connection string, "
             "required by CATALOG_PROVIDER / NUTRITION_PROVIDER / "
             "MEAL_REPOSITORY = sql"
+        )
+    elif _uses_sql(config) and not _is_parseable_url(config.database.url):
+        missing.append(
+            "DATABASE_URL is not a connection string SQLAlchemy can parse — "
+            "it should look like postgresql://postgres.<ref>:<password>"
+            "@aws-0-<region>.pooler.supabase.com:5432/postgres "
+            "(percent-encode @ : / # ? if they appear in the password)"
         )
     if config.storage.provider == "supabase" and (
         not config.storage.supabase_url

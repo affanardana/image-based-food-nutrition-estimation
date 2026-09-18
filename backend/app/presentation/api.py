@@ -15,8 +15,6 @@ def create_app(dependencies: Dependencies | None = None) -> FastAPI:
     """Create the FastAPI application with all routers and handlers."""
     deps = dependencies if dependencies is not None else build_dependencies()
 
-    Path(deps.config.storage.base_path).mkdir(parents=True, exist_ok=True)
-
     app = FastAPI(
         title="I-FNE API",
         version="0.2.0",
@@ -40,10 +38,17 @@ def create_app(dependencies: Dependencies | None = None) -> FastAPI:
     app.include_router(health.router, prefix="/api/v1")
     app.include_router(meals.router, prefix="/api/v1")
     app.include_router(foods.router, prefix="/api/v1")
-    app.mount(
-        "/api/v1/images",
-        StaticFiles(directory=deps.config.storage.base_path),
-        name="images",
-    )
+
+    if deps.config.storage.provider == "local":
+        # Images are served from disk only by the local provider; the
+        # hosted provider returns absolute URLs. Touching the filesystem
+        # here would also crash on a read-only container.
+        Path(deps.config.storage.base_path).mkdir(parents=True, exist_ok=True)
+        app.mount(
+            "/api/v1/images",
+            StaticFiles(directory=deps.config.storage.base_path),
+            name="images",
+        )
+
     register_error_handlers(app)
     return app

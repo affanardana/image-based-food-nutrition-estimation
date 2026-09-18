@@ -981,7 +981,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
-    { name = "modal" },
     { name = "numpy" },
     { name = "opencv-python-headless" },
     { name = "psycopg", extra = ["binary"] },
@@ -1005,6 +1004,7 @@ vision = [
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "modal" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -1016,7 +1016,6 @@ dev = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "matplotlib", marker = "extra == 'vision'", specifier = ">=3.8" },
-    { name = "modal", specifier = ">=1.5.5" },
     { name = "numpy", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'vision'", specifier = ">=1.26" },
     { name = "opencv-python-headless", specifier = ">=4.10" },
@@ -1035,6 +1034,7 @@ provides-extras = ["vision"]
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx", specifier = ">=0.27.0" },
+    { name = "modal", specifier = ">=1.5.5" },
     { name = "mypy", specifier = ">=1.10.0" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },

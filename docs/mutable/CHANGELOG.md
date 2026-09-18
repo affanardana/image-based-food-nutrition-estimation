@@ -93,7 +93,8 @@ Deprecated
 - Frontend is deployable to Vercel: the API origin is configurable with `VITE_API_BASE_URL`, image and crop URLs are resolved against it (they are returned as paths), and `vercel.json` rewrites unknown paths to `index.html`.
 - Result page shows the analyzed photo and the meal's title beneath the "Nutrition result" heading.
 - Images and crops can be stored in Supabase Storage (`STORAGE_PROVIDER=supabase`, the default), so the backend runs without a persistent disk. References become public URLs; the local filesystem provider remains for tests.
-- Deployment configuration: `render.yaml` for the backend (frontend on Vercel, database and storage on Supabase, inference on Modal).
+- Backend deployment: the API is served from Modal (`scripts/modal_api.py`), the same platform as the vision service and on its CPU credits — no server, no card, scaling to zero between requests. Render required a card on file and Hugging Face Spaces made Docker paid; both were ruled out (ADR-019). `modal` moved to the dev dependencies, since only deploying needs it.
+- Static image serving is mounted only when `STORAGE_PROVIDER=local`, so the container writes nothing to its own filesystem.
 - Free-tier housekeeping: a scheduled GitHub Action queries the food search endpoint every three days so Supabase does not pause the project after seven idle days, and the frontend shows a "waking up the demo server" notice when a request takes longer than six seconds.
 
 ---
@@ -113,7 +114,7 @@ Deprecated
 
 ## Fixed
 
-- Crop references returned by the API are now public URLs (`/api/v1/images/...`), converted from the storage filesystem paths stored by real providers — crops display correctly in the frontend with `VISION_PROVIDER=sam3`.
+- Meal images and history thumbnails are now mapped through the same storage-reference conversion as crops: hosted (Supabase) URLs pass through untouched instead of being rewritten into a local `/api/v1/images/...` path that no longer exists, which made the uploaded photo render as a broken image in the label screen and in History.
 - SAM3 results without confidence scores no longer crash label suggestions (missing scores default to 1.0).
 - `LocalStorageProvider.store` now creates intermediate directories for nested destinations (e.g. `crops/`), so crop saving works on a fresh storage directory.
 - `VISION_DEVICE=auto` now resolves to `cpu` on machines without CUDA (previously SAM3 rejected `auto`); unhandled server errors are now logged with their traceback.

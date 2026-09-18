@@ -4,7 +4,11 @@ from dataclasses import replace
 from pathlib import Path
 
 from app.domain.entities.meal import Meal
-from app.presentation.mappers import meal_to_data, stored_path_to_url
+from app.presentation.mappers import (
+    history_entry_to_out,
+    meal_to_data,
+    stored_path_to_url,
+)
 from tests.helpers import make_segment
 
 
@@ -61,6 +65,32 @@ class TestMealToData:
 
         assert data.image_url == "/api/v1/images/meal_1_plate.png"
         assert data.segments[0].crop_url == "/api/v1/images/crops/seg_001.jpg"
+
+    def test_hosted_image_reference_passes_through(self, tmp_path: Path) -> None:
+        """A Supabase URL must not be rewritten into a local path."""
+        hosted = (
+            "https://project.supabase.co/storage/v1/object/public/"
+            "ifne/meal_1_plate.jpg"
+        )
+        meal = Meal(meal_id="meal_1", image_path=hosted)
+
+        data = meal_to_data(meal, storage_base=str(tmp_path / "storage"))
+
+        assert data.image_url == hosted
+
+    def test_history_thumbnail_passes_through_hosted_reference(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        hosted = (
+            "https://project.supabase.co/storage/v1/object/public/"
+            "ifne/meal_1_plate.jpg"
+        )
+        meal = Meal(meal_id="meal_1", image_path=hosted)
+
+        entry = history_entry_to_out(meal, str(tmp_path / "storage"))
+
+        assert entry.image_url == hosted
 
     def test_mock_url_references_pass_through(self, tmp_path: Path) -> None:
         segment = replace(

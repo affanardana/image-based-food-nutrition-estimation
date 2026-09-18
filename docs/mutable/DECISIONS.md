@@ -1681,6 +1681,133 @@ Negative:
 
 ---
 
+# ADR-019
+
+## Title
+
+Host the Backend API on Modal
+
+---
+
+## Status
+
+Accepted
+
+---
+
+## Date
+
+2026-09-18
+
+---
+
+## Context
+
+The application must be reachable at any hour with the owner's machine
+off, at $0, with no payment method — and the owner's card is declined
+for international online payments.
+
+Every conventional free host was ruled out in turn:
+
+- **Render** requires payment information on file even for free
+  services, on both the Blueprint and the plain web service paths. The
+  card is declined by the bank, not by Render.
+- **Hugging Face Spaces** made Docker Spaces and Gradio on the free
+  `cpu-basic` hardware paid in July 2026; only Static Spaces remain free,
+  which cannot run a Python API.
+- **Vercel serverless functions** cap execution at 60 s on the Hobby
+  plan, and a cold start of the vision service can exceed that.
+- **Fly.io, Railway, Koyeb, Heroku** require a card.
+
+One option was already available and proven: the Modal account running
+the vision service, whose **CPU functions need no payment method**
+(only GPUs did, which is why the vision service runs on CPU).
+
+---
+
+## Decision
+
+`scripts/modal_api.py` serves the FastAPI application as a second Modal
+app:
+
+- The image installs dependencies from `pyproject.toml`
+  (`pip_install_from_pyproject`), so the API's environment cannot drift
+  from what is tested, and `add_local_python_source("app")` ships the
+  application code.
+- Configuration comes from a Modal secret named `ifne-api`. Secrets are
+  read at container start, so changing one requires a redeploy or a wait
+  for the container to scale down.
+- Containers start on demand and stop after five idle minutes; this API
+  loads no models, so starting takes seconds.
+- The request timeout is 300 s, since an analyze request waits on the
+  vision service, which may itself be starting.
+- Nothing is persisted on the host — meals are in Supabase Postgres,
+  images in Supabase Storage — and `create_app` mounts static files only
+  for `STORAGE_PROVIDER=local`, so the container never writes to its own
+  filesystem.
+- `render.yaml` and the Hugging Face Docker/Space files are removed
+  rather than left in the repository describing hosts that are unusable.
+
+---
+
+## Alternatives Considered
+
+### Add a payment method to Render
+
+Not possible.
+
+Reason:
+
+The card is declined at the bank. Render does not charge for free
+services; this is a verification requirement, but it still blocks.
+
+### Hugging Face Spaces
+
+Ruled out.
+
+Reason:
+
+Docker and Gradio on free hardware became paid plans in July 2026. The
+remaining workaround — wrapping FastAPI in a Gradio Space on ZeroGPU —
+is unsupported and would not survive the next policy change.
+
+### The owner's machine behind a tunnel
+
+Rejected.
+
+Reason:
+
+It fails the requirement that the site works while that machine is off.
+
+### A small paid VPS
+
+Rejected by the owner.
+
+Reason:
+
+The constraint is $0.
+
+---
+
+## Consequences
+
+Positive:
+
+- $0, no payment method, and one platform for both the API and inference
+- seconds-long cold starts, unlike Render's ~60 s
+- no state on the host, so containers coming and going is harmless
+
+Negative:
+
+- the API and the vision service share one $30/month credit budget (API
+  usage is negligible next to model inference)
+- the deployment depends on Modal's free tier continuing to exist, which
+  is no more guaranteed than any other host's
+- a short cold start remains after five idle minutes, which the
+  frontend's wake-up notice covers
+
+---
+
 # Future ADRs
 
 New architectural decisions should be appended below.

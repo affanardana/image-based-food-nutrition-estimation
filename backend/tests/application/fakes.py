@@ -153,14 +153,21 @@ class FakeMealRepository(MealRepository):
 
 
 class FakeStorageProvider(StorageProvider):
-    """Records storage calls without touching the filesystem."""
+    """Records storage calls without touching the filesystem.
 
-    def __init__(self) -> None:
+    Returns references shaped like the local provider's: a path inside
+    the configured storage base, which the presentation mappers turn
+    into a served URL. Pass the same base the app is configured with, so
+    the double behaves like the real thing.
+    """
+
+    def __init__(self, base_path: str = "/storage") -> None:
+        self._base_path = base_path.rstrip("/")
         self.stored: list[tuple[str, str]] = []
         self.deleted: list[str] = []
 
     def store(self, source_path: str, destination_name: str) -> str:
-        stored_path = f"/storage/{destination_name}"
+        stored_path = f"{self._base_path}/{destination_name}"
         self.stored.append((source_path, destination_name))
         return stored_path
 
