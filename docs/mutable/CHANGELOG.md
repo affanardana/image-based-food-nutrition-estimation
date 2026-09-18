@@ -77,6 +77,7 @@ Deprecated
 - Modal.com deployment for vision inference: `scripts/modal_vision_server.py` (model volume; CPU by default so it runs on free credits, GPU optional) serving the same `/segment` contract, plus `inference/vision_service.py` as the shared, deployment-independent service used by both hosts.
 - Supabase/Postgres food database: `SqlCanonicalFoodCatalog` and `SqlNutritionProvider` behind `CATALOG_PROVIDER=sql` / `NUTRITION_PROVIDER=sql`, with `data/nutrition.csv` (1,346 foods) merged into the curated foods and loaded by `scripts/seed_food_database.py`.
 - Catalog interface gains `list_detectable_foods()` so vision providers prompt only with foods that carry VisionClass mappings, never the full catalog.
+- `scripts/migrate_meal_images.py`: uploads meal images and crops left on disk by an earlier local-storage run to Supabase Storage and rewrites the stored references, so those history entries show their photos again. Report-only by default; `--apply` writes.
 - Meal persistence: `SqlMealRepository` stores the whole Meal aggregate (segments, food items, segment groupings, ingredients, corrections) in the same database as the food data; selectable with `MEAL_REPOSITORY=sql`.
 - Meal history: `GET /meals` lists past analyses, and `PUT /meals/{meal_id}/labels` re-labels a stored meal (the history edit flow). The frontend gains a History screen and an "Edit labels" action on the result screen.
 - Crop files are namespaced per meal (`crops/{meal_id}_seg_001.jpg`) so analyses can no longer overwrite each other's crops.

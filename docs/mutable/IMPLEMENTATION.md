@@ -128,6 +128,7 @@ Implemented (SQL-backed catalog + nutrition)
 - `scripts/modal_vision_server.py` — deploys the inference service to Modal.com (model volume; CPU by default so it runs on free credits, GPU optional — see ADR-014); the recommended host
 - `scripts/seed_food_database.py` — creates and loads the food database
 - `scripts/create_schema.py` — creates any missing tables; `--drop-meal-tables` recreates the meal tables after a schema change (destroys saved meals, leaves the food catalog alone)
+- `scripts/migrate_meal_images.py` — uploads meal images and crops that are still on disk to Supabase Storage and rewrites the stored references (report-only by default, `--apply` to write)
 
 ## Presentation Layer
 
@@ -196,6 +197,11 @@ Backend (Modal):
   images in Supabase Storage. The container writes nothing to its own
   filesystem either, because the static image mount is registered only
   for `STORAGE_PROVIDER=local`.
+- Meals saved before `STORAGE_PROVIDER` was switched to `supabase` still
+  hold filesystem references, which no host can serve. Their files are on
+  the developer's machine only, so recover them with
+  `scripts/migrate_meal_images.py`; a file that is already gone cannot be
+  restored, and only the reference (not the meal) is left broken.
 - The image installs dependencies from `pyproject.toml`
   (`pip_install_from_pyproject`), so they cannot drift from what is
   tested. `modal` itself is a dev dependency: only deploying needs it.

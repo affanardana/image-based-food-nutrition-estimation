@@ -3,7 +3,7 @@
 # Supabase pauses a Free project after 7 days without database activity,
 # and a health check does not count: it has to be a real query. This
 # workflow hits the food search endpoint, which reads the canonical_foods
-# table, so it resets that timer. It also wakes the Render service.
+# table, so it resets that timer. It also warms the Modal containers.
 #
 # Runs every 3 days, comfortably inside the 7-day window in case a run is
 # delayed or skipped. Note that GitHub disables scheduled workflows after
@@ -11,7 +11,9 @@
 # (workflow_dispatch) runs it by hand.
 #
 # Setup: add a repository secret named IFNE_API_URL holding the backend
-# origin, e.g. https://ifne-api.onrender.com (no trailing slash).
+# origin, e.g. https://<workspace>--ifne-api-api.modal.run (no trailing
+# slash). Modal starts a container when the request arrives, so the first
+# call after a quiet spell takes a few seconds; --max-time allows for it.
 
 name: Keep-alive
 

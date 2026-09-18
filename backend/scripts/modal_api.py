@@ -97,7 +97,11 @@ def verify_api() -> None:
     # built, and these lines are what identify the bad value.
     settings = Config.from_env()
     print(f"vision  : {settings.vision.provider} -> {settings.vision.remote_url}")
-    print(f"storage : {settings.storage.provider} -> {settings.storage.supabase_url}")
+    print(
+        f"storage : {settings.storage.provider} -> "
+        f"{settings.storage.supabase_url} "
+        f"(base_path={settings.storage.base_path})"
+    )
     print(f"cors    : {settings.app.cors_origins}")
     # Host only: the connection string carries the database password.
     print(f"database: {settings.database.url.split('@')[-1]}")
