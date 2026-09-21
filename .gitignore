@@ -58,3 +58,6 @@ backend/storage/
 # Local-only documents: kept in the working copy, never published
 AGENTS.md
 PORTFOLIO.md
+
+# Specification set (spec-driven development)
+docs/
