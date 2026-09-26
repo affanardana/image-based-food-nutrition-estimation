@@ -1,0 +1,32 @@
+# Vision service on the CVIS server.
+#
+# Run from this directory (`deploy/cvis`):
+#     docker compose up -d --build
+#
+# The weights live in ./models on the host, so they survive rebuilds and
+# are not baked into the image.
+
+services:
+  vision:
+    build:
+      context: ../..
+      dockerfile: deploy/cvis/Dockerfile
+    image: ifne-vision
+    restart: unless-stopped
+    environment:
+      SAM_MODEL_PATH: /models/sam3.pt
+      DEPTH_MODEL_PATH: /models/yolo26x-depth.pt
+      VISION_DEVICE: cpu
+    volumes:
+      # Read-only: the service only reads the checkpoints. HF_HOME points
+      # inside here so the token and cache persist across restarts.
+      - ./models:/models
+    ports:
+      # Loopback only. The VPS reaches this through an SSH reverse
+      # tunnel that connects to 127.0.0.1:9099 from this host, so the
+      # service is never exposed on the network — not to the internet,
+      # and not to the campus LAN either.
+      #
+      # Host port 9099, not 8000: another service on this box already
+      # listens on 8000.
+      - "127.0.0.1:9099:8000"

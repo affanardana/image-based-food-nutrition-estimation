@@ -1,0 +1,47 @@
+# Backend API on the VPS.
+#
+# Run from this directory (`deploy/vps`), after filling in .env:
+#     docker compose up -d --build
+#
+# Caddy terminates TLS and proxies to the API, which is never published
+# directly.
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/vps/Dockerfile
+    image: ifne-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Not published: only Caddy reaches it, over the compose network.
+    expose:
+      - "8000"
+    extra_hosts:
+      # The vision service arrives through an SSH reverse tunnel that
+      # binds to this host's 127.0.0.1. Inside a container that address
+      # is the container itself, so this makes the host reachable under
+      # a name — VISION_REMOTE_URL points here.
+      - "host.docker.internal:host-gateway"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      API_HOSTNAME: ${API_HOSTNAME:?set API_HOSTNAME in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates live here; losing this volume means re-issuing them,
+      # and Let's Encrypt rate-limits repeated issuance.
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:

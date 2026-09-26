@@ -1,0 +1,11 @@
+# Caddy obtains and renews a Let's Encrypt certificate for whatever
+# hostname is set in API_HOSTNAME, and redirects HTTP to HTTPS on its
+# own. No certbot run, no renewal cron.
+#
+# This is required, not optional: the frontend is served from Vercel over
+# HTTPS, and browsers refuse to call a plain-HTTP API from an HTTPS page.
+
+{$API_HOSTNAME} {
+	encode gzip
+	reverse_proxy api:8000
+}

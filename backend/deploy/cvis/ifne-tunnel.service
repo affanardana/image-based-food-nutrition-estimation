@@ -1,0 +1,47 @@
+# Keeps a reverse SSH tunnel to the API host open.
+#
+# Why a tunnel rather than a network route: the campus firewall blocks
+# inbound to this host, and it intercepts TLS to services it categorises
+# as VPN-like (Tailscale cannot establish trust through it). SSH is not
+# TLS, so it is not subject to that inspection, and the connection is
+# made outbound from here — which the firewall permits.
+#
+# The result: the API host can reach the vision service on this machine
+# at its own 127.0.0.1:9099, with the traffic encrypted end to end, and
+# nothing bound to a public interface at either end.
+#
+# Install:
+#     sudo cp ifne-tunnel.service /etc/systemd/system/
+#     sudo systemctl daemon-reload
+#     sudo systemctl enable --now ifne-tunnel
+#     systemctl status ifne-tunnel
+#
+# .env beside this file (gitignored) supplies VPS_SSH_TARGET. Adjust
+# User and EnvironmentFile below to the account and path on this host.
+
+[Unit]
+Description=I-FNE reverse tunnel to the API host
+Documentation=file:///home/theophilus/ifne/backend/deploy/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+User=theophilus
+EnvironmentFile=/home/theophilus/ifne/backend/deploy/cvis/.env
+ExecStart=/usr/bin/ssh -NT \
+    -o ExitOnForwardFailure=yes \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=3 \
+    -o StrictHostKeyChecking=accept-new \
+    -i %h/.ssh/id_ed25519_tunnel \
+    -R 9099:localhost:9099 \
+    ${VPS_SSH_TARGET}
+
+# The forward is what matters, so a dropped connection must be retried
+# rather than left dead: without this the VPS silently loses the vision
+# service until someone notices.
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

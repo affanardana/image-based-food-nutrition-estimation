@@ -1,0 +1,14 @@
+# Keeps the build context small. Without this, `docker build` sends the
+# virtualenv — hundreds of megabytes of wheels that the image installs
+# for itself anyway.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+storage/
+tests/
+data/
+mappings/
+scripts/

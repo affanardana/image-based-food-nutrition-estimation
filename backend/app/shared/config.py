@@ -37,7 +37,11 @@ class StorageConfig:
 
     provider: str = "supabase"  # supabase | local
     base_path: str = "./storage"  # used by the local provider
-    max_upload_size_mb: int = 10
+    # Kept small deliberately: the API holds the uploaded image and the
+    # decoded masks and depth map in memory at once, so an unbounded
+    # upload can exhaust a small host. Photographs of a plate are well
+    # under this; raise it via MAX_UPLOAD_SIZE_MB on a larger machine.
+    max_upload_size_mb: int = 2
     supabase_url: str = ""
     supabase_service_key: str = ""
     supabase_bucket: str = "ifne"
@@ -99,7 +103,7 @@ class Config:
             storage=StorageConfig(
                 provider=os.getenv("STORAGE_PROVIDER", "supabase"),
                 base_path=os.getenv("STORAGE_PATH", "./storage"),
-                max_upload_size_mb=int(os.getenv("MAX_UPLOAD_SIZE_MB", "10")),
+                max_upload_size_mb=int(os.getenv("MAX_UPLOAD_SIZE_MB", "2")),
                 supabase_url=os.getenv("SUPABASE_URL", ""),
                 supabase_service_key=os.getenv("SUPABASE_SERVICE_KEY", ""),
                 supabase_bucket=os.getenv("SUPABASE_BUCKET", "ifne"),
