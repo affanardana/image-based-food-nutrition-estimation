@@ -164,15 +164,22 @@ cd ifne/backend/deploy/cvis
 
 ### 2.2 Download the checkpoints (~6 GB)
 
-`facebook/sam3` is a gated repository. Request access on Hugging Face,
-create a read token, then:
+`facebook/sam3` is a gated repository. Request access on Hugging Face and
+create a **fine-grained, read-only token scoped to `facebook/sam3`**, with
+an expiry. Then:
 
 ```bash
-export HF_TOKEN=hf_xxxxxxxx
+read -s -p "HF token: " HF_TOKEN && export HF_TOKEN   # keeps it out of shell history
 bash fetch-models.sh
 ```
 
 Use `bash`, not `./` — the executable bit doesn't survive git on Windows.
+
+On a shared host, treat anything typed at the prompt as visible to the
+other sudoers: `export HF_TOKEN=...` on the command line lands in
+`~/.bash_history`, which persists on disk. `read -s` avoids that. Either
+way, **revoke the token once the download finishes** — nothing at runtime
+reads it, and the script deletes the cached copy it leaves behind.
 
 **Checkpoint:**
 
