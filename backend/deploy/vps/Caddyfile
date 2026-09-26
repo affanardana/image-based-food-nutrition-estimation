@@ -7,5 +7,7 @@
 
 {$API_HOSTNAME} {
 	encode gzip
-	reverse_proxy api:8000
+	# Both containers share the host's network namespace, so the API is
+	# reached on loopback rather than by service name.
+	reverse_proxy localhost:8000
 }

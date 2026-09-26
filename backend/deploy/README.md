@@ -115,7 +115,7 @@ Fill in:
 | Variable | Value |
 |---|---|
 | `API_HOSTNAME` | from Before-you-start #2 |
-| `VISION_REMOTE_URL` | leave as `http://host.docker.internal:9099` |
+| `VISION_REMOTE_URL` | leave as `http://127.0.0.1:9099` |
 | `DATABASE_URL` | pasted from the Modal secret |
 | `SUPABASE_URL` | pasted |
 | `SUPABASE_SERVICE_KEY` | pasted |
@@ -303,7 +303,7 @@ curl http://127.0.0.1:9099/health
 → tunnel is up
 
 ```bash
-docker compose exec api curl -s http://host.docker.internal:9099/health
+docker compose exec api python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:9099/health', timeout=15).read().decode())"
 ```
 → the API container can reach it (this is the one that catches a wrong
 `VISION_REMOTE_URL`)
@@ -344,7 +344,7 @@ that exercises the whole pipeline.
 | Caddy can't get a certificate | `API_HOSTNAME` doesn't resolve to this IP, or inbound 80/443 is blocked |
 | `curl 127.0.0.1:9099` fails on the VPS | Tunnel down: `systemctl status ifne-tunnel` on CVIS, then `sudo journalctl -u ifne-tunnel -n 30` |
 | Tunnel restarts repeatedly | Key not authorised, or wrong `VPS_SSH_TARGET`. Re-run the manual test in 3.3 |
-| API can't reach the vision service | `VISION_REMOTE_URL` must be `http://host.docker.internal:9099`. Inside the container, `127.0.0.1` is the container itself |
+| API can't reach the vision service | `VISION_REMOTE_URL` must be `http://127.0.0.1:9099` **and** the API must run with `network_mode: host` — on a bridge network, a container's `127.0.0.1` is itself, not the host, and the tunnel is bound to the host's loopback |
 | API returns 502 | `docker compose logs api` on the VPS |
 | Analysis hangs, then errors | Tunnel up but vision container down: `docker compose logs vision` on CVIS |
 | Analysis is slow | Expected on CPU, and while other jobs on the shared host are busy. The first request after a restart loads the models |

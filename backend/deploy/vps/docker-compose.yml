@@ -3,8 +3,15 @@
 # Run from this directory (`deploy/vps`), after filling in .env:
 #     docker compose up -d --build
 #
-# Caddy terminates TLS and proxies to the API, which is never published
-# directly.
+# Both services use host networking, and that is deliberate. The vision
+# service arrives through an SSH reverse tunnel bound to this host's
+# 127.0.0.1:9099 — and a container on its own bridge network cannot see
+# the host's loopback (host.docker.internal resolves to the bridge
+# gateway, a different address). Sharing the host's network namespace
+# makes 127.0.0.1 mean the same thing on both sides.
+#
+# The consequence to be aware of: the API binds 127.0.0.1:8000 and Caddy
+# binds 0.0.0.0:80/443. Nothing else is published.
 
 services:
   api:
@@ -15,22 +22,22 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    # Not published: only Caddy reaches it, over the compose network.
-    expose:
+    network_mode: host
+    # Bound to loopback explicitly: under host networking, uvicorn's
+    # default of 0.0.0.0 would publish the API on the public interface
+    # and bypass Caddy entirely.
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 127.0.0.1
+      - --port
       - "8000"
-    extra_hosts:
-      # The vision service arrives through an SSH reverse tunnel that
-      # binds to this host's 127.0.0.1. Inside a container that address
-      # is the container itself, so this makes the host reachable under
-      # a name — VISION_REMOTE_URL points here.
-      - "host.docker.internal:host-gateway"
 
   caddy:
     image: caddy:2
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    network_mode: host
     environment:
       API_HOSTNAME: ${API_HOSTNAME:?set API_HOSTNAME in .env}
     volumes:

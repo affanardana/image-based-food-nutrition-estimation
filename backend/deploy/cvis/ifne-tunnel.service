@@ -17,7 +17,12 @@
 #     systemctl status ifne-tunnel
 #
 # .env beside this file (gitignored) supplies VPS_SSH_TARGET. Adjust
-# User and EnvironmentFile below to the account and path on this host.
+# User, EnvironmentFile and the key path below to the account on this
+# host.
+#
+# Note: the key path is written out in full rather than using %h. In a
+# system unit %h is the service manager's home (root's), not the User=
+# account's — ssh would look in /root/.ssh and find nothing.
 
 [Unit]
 Description=I-FNE reverse tunnel to the API host
@@ -33,7 +38,7 @@ ExecStart=/usr/bin/ssh -NT \
     -o ServerAliveInterval=30 \
     -o ServerAliveCountMax=3 \
     -o StrictHostKeyChecking=accept-new \
-    -i %h/.ssh/id_ed25519_tunnel \
+    -i /home/theophilus/.ssh/id_ed25519_tunnel \
     -R 9099:localhost:9099 \
     ${VPS_SSH_TARGET}
 
